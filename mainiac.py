@@ -235,6 +235,8 @@ def run_bot():
             text =   '''Guten morgen frojlajns
 Ich: bin; du: bist; er, sie: es;
 ```#play -     adds a song to queue, with a yt link, musn't be blocked by age restrictions
+```#help -     displays this message
+#play -     adds a song to queue, with a yt link, musn't be blocked by age restrictions
 #playprio - adds a song to front of queue
 #playlist - adds a playlist to queue. Hard limit to 150 songs added for each call
 #pause -    pauses
