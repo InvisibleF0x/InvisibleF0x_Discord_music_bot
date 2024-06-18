@@ -19,14 +19,14 @@ todo:
 - cykle dzień / noc z warframe
 
 Komendy:
-#help -     displays this message
-#play -     adds a song to queue, with a yt link, musn't be blocked by age restrictions
-#playprio - adds a song to front of queue
-#playlist - adds a playlist to queue. Hard limit to 150 songs added for each call
-#pause -    pauses
-#resume -   resumes
-#skip -     skips, can take arguments: all, and number of songs to skip
-#stop -     stops music and leaves the channel (for now leaves the queue full)
-#queue -    displays the current queue with ability to select how many, 10 is defoult
-#search -   searches the phrase and displays top 5 videos
-#x -        if x is a number, will select the song form search
+- #help -     displays this message
+- #play -     adds a song to queue, with a yt link, musn't be blocked by age restrictions
+- #playprio - adds a song to front of queue
+- #playlist - adds a playlist to queue. Hard limit to 150 songs added for each call
+- #pause -    pauses
+- #resume -   resumes
+- #skip -     skips, can take arguments: all, and number of songs to skip
+- #stop -     stops music and leaves the channel (for now leaves the queue full)
+- #queue -    displays the current queue with ability to select how many, 10 is defoult
+- #search -   searches the phrase and displays top 5 videos
+- #x -        if x is a number, will select the song form search
