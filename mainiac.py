@@ -3,6 +3,7 @@ import os
 import re
 from checker import PeriodicChecker
 from player import song_player
+from warframe_requests import warframe_api
 import yt_dlp
 from dotenv import load_dotenv
 
@@ -51,6 +52,7 @@ def run_bot():
     player = song_player(voice_clients, ffmpeg_options)
     yt_dl_options = {"format": "bestaudio/best"}
     ytdl = yt_dlp.YoutubeDL(yt_dl_options)
+    warframe_request = warframe_api()
 
     #odpowiedź na gowość klienta
     @client.event
@@ -230,6 +232,28 @@ def run_bot():
             except Exception as e:
                 print(e)
 
+        # wypisuje obecne cykle w warframe używając api
+        # odwołanie do warframe_requests.get_word_cycles()
+        if message.content.startswith("#wf-state"):
+            try:
+                if len(message.content.split()) > 1:
+                    await warframe_request.get_world_cycles(message.channel, message.content.split()[1])
+                else:
+                    await warframe_request.get_world_cycles(message.channel)
+            except Exception  as e:
+                print(e)
+
+        # wypisuje informacje na temat void tradera w wargrame używając api
+        # odwołanie do warframe_requests.get_void_trader
+        if message.content.startswith("#wf-baro"):
+            try:
+                if len(message.content.split()) > 1:
+                    await warframe_request.get_void_trader(message.channel, message.content.split()[1])
+                else:
+                    await warframe_request.get_void_trader(message.channel)
+            except Exception  as e:
+                print(e)
+
         # wyświetla liste komend
         if message.content.startswith("#help"):
             text =   '''Guten morgen frojlajns
@@ -246,6 +270,11 @@ Ich: bin; du: bist; er, sie: es;
 #queue -    displays the current queue with ability to select how many, 10 is defoult
 #search -   searches the phrase and displays top 5 videos
 #x -        if x is a number, will select the song form search```Fur die minuten, das ist alles.
+#x -        if x is a number, will select the song form search
+
+For wf commands add platform (pc, xb, ps, swi), or leave empty - defoult is pc
+#wf-state - shows day/night cycles for every open world
+#wf-baro -  shows the equipment for void trader```Fur die minuten, das ist alles.
 Oder neue functionen bist creationen'''
             await message.channel.send(text)
 
