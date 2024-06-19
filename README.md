@@ -13,6 +13,7 @@ feature list
 - pauza, ruzumpcja, stop
 - wychodzi po 30s braku osób na kanale
 - działa na paru serwerach jednocześnie
+- informacje z warframe
 
 todo:
 - odtwarzanie z spotify
@@ -30,3 +31,5 @@ Komendy:
 - #queue -    displays the current queue with ability to select how many, 10 is defoult
 - #search -   searches the phrase and displays top 5 videos
 - #x -        if x is a number, will select the song form search
+- #wf-state   shows day/night cycles for every open world
+- #wf-baro -  shows the equipment for void trader
