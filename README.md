@@ -1,6 +1,10 @@
 Poprostu bot muzyczny.
 Aby zadziałał należy utworzyć .env ze zmienną discord_token
 
+Czemu nie korzysta z systemu komend wbudowanego w discord ?
+Bo jak masz pare botów to się nazwy komend pokrywają i się dłużej pisze,
+po drugie, czje ciut nostaligii do pisania w ten sposób, jak kiedyś na fred bocie
+
 feature list
 - granie z yt
 - wyszukiwanie z yt

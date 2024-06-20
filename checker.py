@@ -1,6 +1,7 @@
 # Nie jest to najlepsze rozwiązanie, ale mechanizm zegara pracującego w tle
 # może się okazać przydatny w przyszłości
 import asyncio
+import player
 
 class PeriodicChecker:  # klasa odpowiedzialna za sprawdzanie czy ktoś jest połączony do kanału
     def __init__(self, voice_clients):
@@ -20,6 +21,7 @@ class PeriodicChecker:  # klasa odpowiedzialna za sprawdzanie czy ktoś jest po�
                     if len(vc.channel.members) == 1:
                         await vc.disconnect()
                         del self.voice_clients[guild_id]
+                        await self.player.stop(guild_id)
                         print(f"Disconnected from {vc.channel.name} due to inactivity.")
             except Exception as e:
                 print(f"Error in check_channel_conn: {e}")
@@ -27,8 +29,10 @@ class PeriodicChecker:  # klasa odpowiedzialna za sprawdzanie czy ktoś jest po�
 
 # Rozpoczyna checker i jego task
     async def start(self):
+    async def start(self, player):
         if not self.running:
             self.running = True
+            self.player = player
             self.task = asyncio.create_task(self.check_channel_conn())
             print("Started periodic check.")
         else:
