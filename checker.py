@@ -19,8 +19,6 @@ class PeriodicChecker:  # klasa odpowiedzialna za sprawdzanie czy kto≈õ jest po≈
                         await self.stop()
                         return
                     if len(vc.channel.members) == 1:
-                        await vc.disconnect()
-                        del self.voice_clients[guild_id]
                         await self.player.stop(guild_id)
                         print(f"Disconnected from {vc.channel.name} due to inactivity.")
             except Exception as e:
@@ -28,7 +26,6 @@ class PeriodicChecker:  # klasa odpowiedzialna za sprawdzanie czy kto≈õ jest po≈
             await asyncio.sleep(30) 
 
 # Rozpoczyna checker i jego task
-    async def start(self):
     async def start(self, player):
         if not self.running:
             self.running = True

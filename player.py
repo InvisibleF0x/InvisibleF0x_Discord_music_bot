@@ -5,11 +5,6 @@ import discord
 import random
 
 yt_dl_options_playlist = {"format": "bestaudio/best", "ignoreerrors": True, "playlistend": 150}
-yt_dl_options_single = {"format": "bestaudio/best", "noplaylist": True, "ignoreerrors": True, "playlistend":1}
-ytdl = yt_dlp.YoutubeDL(yt_dl_options_single)
-ytdl_playlist = yt_dlp.YoutubeDL(yt_dl_options_playlist)
-ytdl_search = yt_dlp.YoutubeDL({"format": "bestaudio/best", "ignoreerrors": True, "playlistend": 5})
-extractor_options = {"download": False}
 yt_dl_options_single = {"format": "bestaudio/best", "noplaylist": True, "ignoreerrors": True, "playlistend": 1}
 yt_dl_options_search = {"format": "bestaudio/best", "ignoreerrors": True, "playlistend": 5}
 
@@ -48,7 +43,6 @@ class song_player:
 
     # zakończenie playera, skończenie tasku
     async def stop(self, guild_id):
-        if self.running.get(guild_id):
         if guild_id in self.voice_clients:
             self.running[guild_id] = False
             if self.task.get(guild_id):
@@ -61,7 +55,6 @@ class song_player:
                     pass
             print("Stopped music player.")
         else:
-            print("Attempting to stop while music player is not running.")
             print("Attempting to stop while no bot is connected.")
 
     # pomijanie określanej liczby utworów 
@@ -131,12 +124,10 @@ class song_player:
         guild_id = channel.guild.id
         try:
             loop = asyncio.get_event_loop()
-            data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
             data = await loop.run_in_executor(None, lambda: self.ytdl_instances[guild_id]['single'].extract_info(url, download=False))
             return data['url'], data.get('title', 'Unknown'), data.get('duration', 0)
         except Exception as e:
             print(f"Error preparing song: {e}")
-            await channel.send("Unable to play song, this can be coused by region block and age restrictions")
             await channel.send("Unable to play song, this can be caused by region block and age restrictions")
             return None, None, None
 
@@ -155,11 +146,9 @@ class song_player:
     async def prepare_playlist(self, channel, guild_id, url):
         try:
             loop = asyncio.get_event_loop()
-            data = await loop.run_in_executor(None, lambda: ytdl_playlist.extract_info(url, download=False))
             data = await loop.run_in_executor(None, lambda: self.ytdl_instances[guild_id]['playlist'].extract_info(url, download=False))
 
             if 'entries' in data:
-                first_entry = True  # flaga oznaczająca pierwszą piosenkę
                 first_entry = True  # Flag indicating the first song
                 for entry in data['entries']:
                     if entry:
@@ -167,8 +156,6 @@ class song_player:
                         title = entry.get('title', 'Unknown')
                         duration = entry.get('duration', 0)
 
-                        if song_url and title:  # sprawzenie czy piosenka ma wszystkie informacje (dla przypadku gdy jest zablokowana, informacje będą niedostępne)
-                            if not first_entry or self.current_song_info[guild_id][0] != title: #zapobieganie dodaniu 1 piosenki 2 razy
                         if song_url and title:  # Check if the song has all information (if blocked, information will be unavailable)
                             if not first_entry or self.current_song_info[guild_id][0] != title: # Prevent adding the first song twice
                                 if guild_id not in self.music_dequeue:
@@ -179,7 +166,6 @@ class song_player:
                                 first_entry = False
                             else:
                                 print(f"Song already in queue: {title}")
-                                first_entry = False  # to zawsze się odpala przy pierwszej piosence
                                 first_entry = False  # Always triggers on the first song
                         else:
                             print("Skipping invalid entry in playlist")
@@ -196,8 +182,6 @@ class song_player:
         message = "```"
         self.results[guild_id] = await self.search_results(query)
         self.search_flag[guild_id] = True
-        print("Wybierz piosenkę do zagrania (#1):")
-        await channel.send("Wybierz piosenkę do zagrania (#1):")
         print("Choose a song to play (#1):")
         await channel.send("Choose a song to play (#1):")
         for x in range(1, 6):
@@ -211,7 +195,6 @@ class song_player:
         guild_id = list(self.ytdl_instances.keys())[0]
         search_result = []
         loop = asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl_search.extract_info(f"ytsearch5:{query}", download=False))
         data = await loop.run_in_executor(None, lambda: self.ytdl_instances[guild_id]['search'].extract_info(f"ytsearch5:{query}", download=False))
         if 'entries' in data:
             for entry in data['entries']:
@@ -289,12 +272,9 @@ class song_player:
         if x > 40:
             x = 40
         guild_id = channel.guild.id
-        if guild_id in self.music_dequeue and self.music_dequeue[guild_id]:
         if (guild_id in self.music_dequeue and self.music_dequeue[guild_id]) or guild_id in self.current_song_info:
             queue_list = list(self.music_dequeue[guild_id])
             message = "Current queue:\n```"
-            for i, (song_url, title, duration) in enumerate(queue_list, start=1, end=x):
-                message += f"{i}. {title} - {self.format_duration(duration)}\n"
             message += f"Now: {self.current_song_info[guild_id][0]} - {self.format_duration(self.current_song_info[guild_id][1])}\n"
             for i, (song_url, title, duration) in enumerate(queue_list):
                 message += f"{i+1}. {title} - {self.format_duration(duration)}\n"

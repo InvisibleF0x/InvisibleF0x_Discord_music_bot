@@ -31,7 +31,6 @@ def get_first_playlist_item_url(playlist_url):
             if first_entry:
                 playlist_item_url = first_entry.get('url')
                 if playlist_item_url:
-                    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + playlist_item_url+"&list="+playlist_id+"&index=1")
                     return playlist_item_url+"&list="+playlist_id+"&index=1"
     
     return None
@@ -49,7 +48,6 @@ def run_bot():
     checkers = {}
     # te opcje zapewniają że nie powinien przestawać odtwarzać losowo i w teori głośność każdego video będzie podobna
     ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn -af loudnorm=I=-16:LRA=11:TP=-1.5'}   
-    checker = PeriodicChecker(voice_clients)
     player = song_player(voice_clients, ffmpeg_options)
     yt_dl_options = {"format": "bestaudio/best"}
     ytdl = yt_dlp.YoutubeDL(yt_dl_options)
@@ -63,7 +61,6 @@ def run_bot():
     # Odpowiedzi na wiadomości na czacie
     @client.event
     async def on_message(message):  # bot sprawdza każdą wiadomość czy nie zaczyna się od komendy
-        
         nonlocal checkers
         nonlocal voice_clients
 
@@ -78,7 +75,6 @@ def run_bot():
                 
                 voice_client = await message.author.voice.channel.connect()  # sprawdza czy autor jest na kanale, jak jest to dołącza
                 voice_clients[voice_client.guild.id] = voice_client  # dodanie instancji bota do listy
-                await checker.start()
                 checker = PeriodicChecker(voice_clients)
                 await checker.start(player)
                 checkers[message.guild.id] = checker
@@ -90,7 +86,6 @@ def run_bot():
                 url = message.content.split()[1]  # oddzielenie adresu url od komendy
                 if "playlist" in url:
                     url = get_first_playlist_item_url(url)
-                await player.add_song(message.channel,url)
                 await player.start(message.guild.id)
                 await player.add_song(message.channel,url)
             except Exception as e:
@@ -107,7 +102,6 @@ def run_bot():
                 
                 voice_client = await message.author.voice.channel.connect()  # sprawdza czy autor jest na kanale, jak jest to dołącza
                 voice_clients[voice_client.guild.id] = voice_client  # dodanie instancji bota do listy
-                await checker.start()
                 checker = PeriodicChecker(voice_clients)
                 await checker.start(player)
                 checkers = [voice_client.guild.id] = checker
@@ -117,7 +111,6 @@ def run_bot():
             
             try:
                 url = message.content.split()[1]  # oddzielenie adresu url od komendy
-                await player.add_song_prio(message.channel,url)
                 await player.start(message.guild.id)
                 await player.add_song_prio(message.channel,url)
             except Exception as e:
@@ -135,7 +128,6 @@ def run_bot():
                 
                 voice_client = await message.author.voice.channel.connect()  # sprawdza czy autor jest na kanale, jak jest to dołącza
                 voice_clients[voice_client.guild.id] = voice_client  # dodanie instancji bota do listy
-                await checker.start()
                 checker = PeriodicChecker(voice_clients)
                 await checker.start(player)
                 checkers = [voice_client.guild.id] = checker
@@ -145,7 +137,6 @@ def run_bot():
             
             try:
                 url = message.content.split()[1]  # oddzielenie adresu url od komendy
-                await player.add_playlist_to_queue(message.channel,url)
                 await player.start(message.guild.id)
                 await player.add_playlist_to_queue(message.channel,url)
             except Exception as e:
@@ -161,7 +152,6 @@ def run_bot():
                 
                 voice_client = await message.author.voice.channel.connect()  # sprawdza czy autor jest na kanale, jak jest to dołącza
                 voice_clients[voice_client.guild.id] = voice_client  # dodanie instancji bota do listy
-                await checker.start()
                 checker = PeriodicChecker(voice_clients)
                 await checker.start(player)
                 checkers = [voice_client.guild.id] = checker
@@ -171,7 +161,6 @@ def run_bot():
             
             try:
                 query = ' '.join(message.content.split()[1:])   #wszystko po komendzie do 1 stringa
-                await player.list_search_results(query,message.channel)
                 await player.start(message.guild.id)
                 await player.list_search_results(query,message.channel)
             except Exception as e:
@@ -245,10 +234,6 @@ def run_bot():
         # Odwołanie do checker.stop() i song_player.stop()
         if message.content.startswith("#stop"):
             try:
-                voice_clients[message.guild.id].stop()
-                await voice_clients[message.guild.id].disconnect()
-                await checker.stop()    # zatrzymanie licznika żeby nie obciążał niepotrzebnie
-                await player.stop(message.guild.id)     # ^ ale playera
                 if message.guild.id in voice_clients:
                     await player.stop(message.guild.id)     # ^ ale playera
                     await checkers[message.guild.id].stop()    # zatrzymanie licznika żeby nie obciążał niepotrzebnie
@@ -283,7 +268,6 @@ def run_bot():
         if message.content.startswith("#help"):
             text =   '''Guten morgen frojlajns
 Ich: bin; du: bist; er, sie: es;
-```#play -     adds a song to queue, with a yt link, musn't be blocked by age restrictions
 ```#help -     displays this message
 #play -     adds a song to queue, with a yt link, musn't be blocked by age restrictions
 #playprio - adds a song to front of queue
@@ -294,7 +278,6 @@ Ich: bin; du: bist; er, sie: es;
 #stop -     stops music and leaves the channel (for now leaves the queue full)
 #queue -    displays the current queue with ability to select how many, 10 is defoult
 #search -   searches the phrase and displays top 5 videos
-#x -        if x is a number, will select the song form search```Fur die minuten, das ist alles.
 #x -        if x is a number, will select the song form search
 
 For wf commands add platform (pc, xb, ps, swi), or leave empty - defoult is pc
