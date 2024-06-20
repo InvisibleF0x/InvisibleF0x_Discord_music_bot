@@ -1,11 +1,19 @@
-Poprostu bot muzyczny.
-Aby zadziałał należy utworzyć .env ze zmienną discord_token
+# Uruchamianie
+Aby zadziałał należy utworzyć .env ze zmienną discord_token, pobrać biblioteki i
+ffmpeg z dodaniem go jako ścieżkę/zmienną systemową.
+Następnie uruchomić main.py i tyle.
 
-Czemu nie korzysta z systemu komend wbudowanego w discord ?
+potem dodam plik pobierający biblioteki i ffmpg.
+
+### Jaka przyszłość ?
+Bot jest wstępnie skończony, ma wszystkie core funkcje,
+przyszłe updaty to fixy i ~może~ wprowadzenie odtwarzania ze spotify
+
+### Czemu nie korzysta z systemu komend wbudowanego w discord ?
 Bo jak masz pare botów to się nazwy komend pokrywają i się dłużej pisze,
 po drugie, czje ciut nostaligii do pisania w ten sposób, jak kiedyś na fred bocie
 
-feature list
+## feature list
 - granie z yt
 - wyszukiwanie z yt
 - Poziomy audio między filmami powinny być podobne
@@ -19,11 +27,7 @@ feature list
 - działa na paru serwerach jednocześnie
 - informacje z warframe
 
-todo:
-- odtwarzanie z spotify
-- cykle dzień / noc z warframe
-
-Komendy:
+## Komendy:
 - #help -     displays this message
 - #play -     adds a song to queue, with a yt link, musn't be blocked by age restrictions
 - #playprio - adds a song to front of queue
