@@ -47,7 +47,7 @@ def run_bot():
     voice_clients = {}
     checkers = {}
     # te opcje zapewniają że nie powinien przestawać odtwarzać losowo i w teori głośność każdego video będzie podobna
-    ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn -af loudnorm=I=-16:LRA=11:TP=-1.5'}   
+    ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn -af dynaudnorm'}   
     player = song_player(voice_clients, ffmpeg_options)
     yt_dl_options = {"format": "bestaudio/best"}
     ytdl = yt_dlp.YoutubeDL(yt_dl_options)

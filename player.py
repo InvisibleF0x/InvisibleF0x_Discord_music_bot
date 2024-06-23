@@ -4,7 +4,7 @@ import yt_dlp
 import discord
 import random
 
-# Tak naprawde nie wiem czy wszystkie opcje działają, ale wiem że z nimi jest szybko i dobrze więc ich używam,
+# Tak naprawde nie wiem czy wszystkie opcje działają, ale wiem że z nimi jest szybko i dobrze więc ich używam, chociaż będe dalej szukał, bo playlisty się ładują całkiem wolno, ale nw czy się da szybciej
 yt_dl_options_playlist = {"format": "bestaudio/best", "ignoreerrors": True, "playlistend": 150, "quiet": True}
 yt_dl_options_single = {"format": "bestaudio/best", "noplaylist": True, "ignoreerrors": True, "playlistend": 1, "quiet": True}
 yt_dl_options_search = {"playlistend": 5, "flatplaylist": True, "quiet": True, "ignoreerrors": True, "skipdownload": True, "extract_flat": "in_playlist", "no_warnings": True, "nocheckcertificate": True}
@@ -73,7 +73,7 @@ class song_player:
                 if self.current_voice_client.get(guild_id) and (self.current_voice_client[guild_id].is_playing() or self.current_voice_client[guild_id].is_paused()):
                     self.current_voice_client[guild_id].stop()
                     print("Skipped current song.")
-                    await channel.send("Skipped current song.")
+                    await channel.send("Skipped current song, `" + str(len(self.music_dequeue[guild_id])) + "` songs left in queue")
                     self.current_song_info[guild_id] = None
                 else:
                     print("No song is currently playing.")
@@ -84,7 +84,7 @@ class song_player:
                 if self.current_voice_client.get(guild_id) and self.current_voice_client[guild_id].is_playing():
                     self.current_voice_client[guild_id].stop()
                     print(f"Skipped {num} songs.")
-                    await channel.send(f"Skipped {num} songs.")
+                    await channel.send(f"Skipped {num} songs, `" + str(len(self.music_dequeue[guild_id])) + "` songs left in queue")
                     self.current_song_info[guild_id] = None
             else:
                 print("Invalid skip parameters.")
@@ -146,18 +146,19 @@ class song_player:
     # odwołanie do format_duration()
     async def prepare_playlist(self, channel, guild_id, url):
         try:
+            await channel.send("Processing the playlist...")
             loop = asyncio.get_event_loop()
             data = await loop.run_in_executor(None, lambda: self.ytdl_instances[guild_id]['playlist'].extract_info(url, download=False))
-
+            z  = 0
             if 'entries' in data:
-                first_entry = True  # Flag indicating the first song
+                first_entry = True  # Flaga pdla pierwszej piosenki
                 for entry in data['entries']:
                     if entry:
                         song_url = entry.get('url')
                         title = entry.get('title', 'Unknown')
                         duration = entry.get('duration', 0)
-
                         if song_url and title:  # do pomijania piosenek zablokowanych
+                            z = z + 1
                             if not first_entry or self.current_song_info[guild_id][0] != title: # Zapobieganie żeby 1wsza się 2 razy dodała
                                 if guild_id not in self.music_dequeue:
                                     self.music_dequeue[guild_id] = deque()
@@ -172,10 +173,11 @@ class song_player:
                             print("Skipping invalid entry in playlist")
                     else:
                         print("Skipping None entry in playlist")
-                await channel.send("Added `" + str(len(data['entries'])) + "` songs to queue from the playlist `" + data['title'] + "`.")
+                await channel.send("Added `" + str(z) + "` songs to queue from the playlist `" + data['title'] + "`.")
             else:
                 await channel.send("Couldn't find any songs in playlist")
         except Exception as e:
+            await channel.send(f"Error preparing playlist: {e}")
             print(f"Error preparing playlist: {e}")
 
     # wyświetla rezultaty wyszukiwania
@@ -281,7 +283,7 @@ class song_player:
         if x > 30:
             x = 30
         guild_id = channel.guild.id
-        if (guild_id in self.music_dequeue and self.music_dequeue[guild_id]) or guild_id in self.current_song_info:
+        if ((guild_id in self.music_dequeue and self.music_dequeue[guild_id]) or guild_id in self.current_song_info) and len(self.music_dequeue[guild_id]) != 0:
             queue_list = list(self.music_dequeue[guild_id])
             message = "Current queue:\n```"
             message += f"Now: {self.current_song_info[guild_id][0]} - {self.format_duration(self.current_song_info[guild_id][1])}\n"
