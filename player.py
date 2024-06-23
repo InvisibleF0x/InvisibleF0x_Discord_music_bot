@@ -4,9 +4,10 @@ import yt_dlp
 import discord
 import random
 
-yt_dl_options_playlist = {"format": "bestaudio/best", "ignoreerrors": True, "playlistend": 150}
-yt_dl_options_single = {"format": "bestaudio/best", "noplaylist": True, "ignoreerrors": True, "playlistend": 1}
-yt_dl_options_search = {"format": "bestaudio/best", "ignoreerrors": True, "playlistend": 5}
+# Tak naprawde nie wiem czy wszystkie opcje działają, ale wiem że z nimi jest szybko i dobrze więc ich używam,
+yt_dl_options_playlist = {"format": "bestaudio/best", "ignoreerrors": True, "playlistend": 150, "quiet": True}
+yt_dl_options_single = {"format": "bestaudio/best", "noplaylist": True, "ignoreerrors": True, "playlistend": 1, "quiet": True}
+yt_dl_options_search = {"playlistend": 5, "flatplaylist": True, "quiet": True, "ignoreerrors": True, "skipdownload": True, "extract_flat": "in_playlist", "no_warnings": True, "nocheckcertificate": True}
 
 
 class song_player:
@@ -181,14 +182,17 @@ class song_player:
     # odwołanie do format_duration() i search_results()
     async def list_search_results(self, query, channel):
         guild_id = channel.guild.id
-        message = "```"
+        message = "Search resoults for: '" + query + "'" + "```"
         self.results[guild_id] = await self.search_results(query)
         self.search_flag[guild_id] = True
         print("Choose a song to play (#1):")
         await channel.send("Choose a song to play (#1):")
         for x in range(1, 6):
-            print(str(x) + ". " + self.results[guild_id][x - 1][1] + " - " + self.format_duration(self.results[guild_id][x - 1][2]))
-            message = message + str(x) + ". " + self.results[guild_id][x - 1][1] + " - " + self.format_duration(self.results[guild_id][x - 1][2]) + "\n"
+            if len(self.results[guild_id]) > x-1:
+                print(str(x) + ". " + self.results[guild_id][x - 1][1] + " - " + self.format_duration(self.results[guild_id][x - 1][2]))
+                message = message + str(x) + ". " + self.results[guild_id][x - 1][1] + " - " + self.format_duration(self.results[guild_id][x - 1][2]) + "\n"
+            else:
+                break
         message = message + "```"
         await channel.send(message)
 
@@ -201,7 +205,7 @@ class song_player:
         if 'entries' in data:
             for entry in data['entries']:
                 if entry:
-                    song_url = entry.get('webpage_url')
+                    song_url = entry.get('url')
                     title = entry.get('title', 'Unknown')
                     duration = entry.get('duration', 0)
 
@@ -215,8 +219,11 @@ class song_player:
     async def add_search_result_to_queue(self, x, channel):
         guild_id = channel.guild.id
         if self.search_flag.get(guild_id):
-            await self.add_song(channel, self.results[guild_id][x - 1][0])
-            self.search_flag[guild_id] = False
+            if  x <= len(self.results[guild_id]):
+                await self.add_song(channel, self.results[guild_id][x - 1][0])
+                self.search_flag[guild_id] = False
+            else:
+                await channel.send("The number isn't on the list")
         else:
             print("There is nothing to choose from")
             await channel.send("There is nothing to choose from")
@@ -299,5 +306,6 @@ class song_player:
 
     @staticmethod
     def format_duration(duration):
+        duration = int(duration)
         minutes, seconds = divmod(duration, 60)
         return f"{minutes:02d}:{seconds:02d}"

@@ -1,6 +1,14 @@
 import yt_dlp
 
-ytdl_search = yt_dlp.YoutubeDL({"playlistend":5})
+ytdl_search = yt_dlp.YoutubeDL({
+    "playlistend": 5,         # Limit to first 5 videos in a playlist
+    "flatplaylist": True,     # Only retrieve basic information
+    "quiet": True,            # Reduce verbosity
+    "ignoreerrors": True,     # Ignore errors to speed up the process
+    "skipdownload": True,     # Do not download any videos
+    "extract_flat": "in_playlist",  # Extract only playlist metadata
+    "no_warnings": True,      # Suppress warnings
+})
 
 class mock():
     def ___init___(self):
@@ -8,8 +16,13 @@ class mock():
         self.results = []
 
     def format_duration(self, duration):
-            minutes, seconds = divmod(duration, 60)
-            return f"{minutes}:{seconds:02}"
+        duration = int(duration)
+        minutes, seconds = divmod(duration, 60)
+        return f"{minutes:02d}:{seconds:02d}"
+
+    # def format_duration(duration):
+    #     minutes, seconds = divmod(duration, 60)
+    #     return f"{minutes:02d}:{seconds:02d}"
 
     def search_results(self, url):
         search_result=[]
@@ -17,7 +30,8 @@ class mock():
         if 'entries' in data:
                         for entry in data['entries']:
                             if entry:
-                                song_url = entry.get('webpage_url')
+                                print(entry)
+                                song_url = entry.get('url')
                                 title = entry.get('title', 'Unknown')
                                 duration = entry.get('duration', 0)
 
@@ -32,7 +46,7 @@ class mock():
         self.search_flag = True  #self
         print("Wybierz piosenkę do zagrania (#1):")
         for x in range(1,6):
-            print(str(x) + "." + self.results[x-1][1] + " - " + self.format_duration(self.results[x-1][2]))
+            print(str(x) + "." + str(self.results[x-1][0]) + " - " + self.format_duration(self.results[x-1][2]))
 
     def add_search_result_to_queue(self, x):
         if self.search_flag:
@@ -40,6 +54,8 @@ class mock():
             #tutaj dać add_song z linkiem self.results[x-1][0]
         else:
             print("There is nothing to choose from")
+
+    
 
 mok = mock()
 

@@ -65,8 +65,8 @@ def run_bot():
         nonlocal voice_clients
 
         # dodaje nową piosenkę na koniec. 
-        # Odwołanie do song_player.add_song(), song_player.start() i checker.start()
-        # gdy dostaje link do playlisty, ładuje tylko 1 piosenkę, celowo.
+        # Odwołanie do song_player.add_song(), player.list_search_resoults(), song_player.start() i checker.start()
+        # gdy dostaje link do playlisty, ładuje tylko 1 piosenkę, celowo. A jak linku nie ma to wyszukuje top 5
         if message.content.startswith("#play"):
             try:
                 if message.author.voice is None:
@@ -84,10 +84,15 @@ def run_bot():
 
             try:
                 url = message.content.split()[1]  # oddzielenie adresu url od komendy
-                if "playlist" in url:
-                    url = get_first_playlist_item_url(url)
-                await player.start(message.guild.id)
-                await player.add_song(message.channel,url)
+                if "https://" in url:
+                    if "playlist" in url:
+                        url = get_first_playlist_item_url(url)
+                    await player.start(message.guild.id)
+                    await player.add_song(message.channel,url)
+                else:
+                    query = ' '.join(message.content.split()[1:])   #wszystko po komendzie do 1 stringa
+                    await player.start(message.guild.id)
+                    await player.list_search_results(query,message.channel)
             except Exception as e:
                 print(e)
 
@@ -111,8 +116,15 @@ def run_bot():
             
             try:
                 url = message.content.split()[1]  # oddzielenie adresu url od komendy
-                await player.start(message.guild.id)
-                await player.add_song_prio(message.channel,url)
+                if "https://" in url:
+                    if "playlist" in url:
+                        url = get_first_playlist_item_url(url)
+                    await player.start(message.guild.id)
+                    await player.add_song_prio(message.channel,url)
+                else:
+                    query = ' '.join(message.content.split()[1:])   #wszystko po komendzie do 1 stringa
+                    await player.start(message.guild.id)
+                    await player.list_search_results(query,message.channel)                
             except Exception as e:
                 print(e)
 
@@ -139,30 +151,6 @@ def run_bot():
                 url = message.content.split()[1]  # oddzielenie adresu url od komendy
                 await player.start(message.guild.id)
                 await player.add_playlist_to_queue(message.channel,url)
-            except Exception as e:
-                print(e)
-
-        # wyszukuje top 5 filmów na yt z frazy
-        # odwołanie do player.list_search_resoults()
-        if message.content.startswith("#search"):
-            try:
-                if message.author.voice is None:
-                    await message.channel.send("You are not connected to a voice channel.")
-                    return
-                
-                voice_client = await message.author.voice.channel.connect()  # sprawdza czy autor jest na kanale, jak jest to dołącza
-                voice_clients[voice_client.guild.id] = voice_client  # dodanie instancji bota do listy
-                checker = PeriodicChecker(voice_clients)
-                await checker.start(player)
-                checkers = [voice_client.guild.id] = checker
-
-            except Exception as e:
-                print(e)
-            
-            try:
-                query = ' '.join(message.content.split()[1:])   #wszystko po komendzie do 1 stringa
-                await player.start(message.guild.id)
-                await player.list_search_results(query,message.channel)
             except Exception as e:
                 print(e)
 
@@ -269,7 +257,7 @@ def run_bot():
             text =   '''Guten morgen frojlajns
 Ich: bin; du: bist; er, sie: es;
 ```#help -     displays this message
-#play -     adds a song to queue, with a yt link, musn't be blocked by age restrictions
+#play -     adds a song to queue, with a yt link, musn't be blocked by age restrictions, also, can search for the song
 #playprio - adds a song to front of queue
 #playlist - adds a playlist to queue. Hard limit to 150 songs added for each call
 #pause -    pauses
@@ -277,7 +265,6 @@ Ich: bin; du: bist; er, sie: es;
 #skip -     skips, can take arguments: all, and number of songs to skip
 #stop -     stops music and leaves the channel (for now leaves the queue full)
 #queue -    displays the current queue with ability to select how many, 10 is defoult, 30 is max
-#search -   searches the phrase and displays top 5 videos
 #x -        if x is a number, will select the song form search
 
 For wf commands add platform (pc, xb, ps, swi), or leave empty - defoult is pc

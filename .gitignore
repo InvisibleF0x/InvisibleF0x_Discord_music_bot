@@ -1,3 +1,4 @@
 .env
 __pycache__
-single_offline_tests
+single_offline_tests/yt_search.py
+/single_offline_tests
