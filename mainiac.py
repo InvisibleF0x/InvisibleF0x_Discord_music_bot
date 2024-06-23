@@ -276,7 +276,7 @@ Ich: bin; du: bist; er, sie: es;
 #resume -   resumes
 #skip -     skips, can take arguments: all, and number of songs to skip
 #stop -     stops music and leaves the channel (for now leaves the queue full)
-#queue -    displays the current queue with ability to select how many, 10 is defoult
+#queue -    displays the current queue with ability to select how many, 10 is defoult, 30 is max
 #search -   searches the phrase and displays top 5 videos
 #x -        if x is a number, will select the song form search
 

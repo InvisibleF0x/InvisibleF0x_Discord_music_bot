@@ -132,7 +132,7 @@ class song_player:
             return None, None, None
 
     # dodawanie playlisty do kolejki
-    # odwołanie do prepare_playlist()
+    # odwołanie do prepare_playlist()   #ogarnąć ilość wiadomości
     async def add_playlist_to_queue(self, channel, url):
         guild_id = channel.guild.id
         try:
@@ -156,22 +156,24 @@ class song_player:
                         title = entry.get('title', 'Unknown')
                         duration = entry.get('duration', 0)
 
-                        if song_url and title:  # Check if the song has all information (if blocked, information will be unavailable)
-                            if not first_entry or self.current_song_info[guild_id][0] != title: # Prevent adding the first song twice
+                        if song_url and title:  # do pomijania piosenek zablokowanych
+                            if not first_entry or self.current_song_info[guild_id][0] != title: # Zapobieganie żeby 1wsza się 2 razy dodała
                                 if guild_id not in self.music_dequeue:
                                     self.music_dequeue[guild_id] = deque()
                                 self.music_dequeue[guild_id].append((song_url, title, duration))
-                                print(f"Added song to queue: {title} - {self.format_duration(duration)}")
-                                await channel.send(f"Added song to queue: {title} - {self.format_duration(duration)}")
+                                #print(f"Added song to queue: {title} - {self.format_duration(duration)}")
+                                #await channel.send(f"Added song to queue: {title} - {self.format_duration(duration)}")
                                 first_entry = False
                             else:
                                 print(f"Song already in queue: {title}")
-                                first_entry = False  # Always triggers on the first song
+                                first_entry = False  # Zawsze przy pierwszej
                         else:
                             print("Skipping invalid entry in playlist")
                     else:
                         print("Skipping None entry in playlist")
-
+                await channel.send("Added `" + str(len(data['entries'])) + "` songs to queue from the playlist `" + data['title'] + "`.")
+            else:
+                await channel.send("Couldn't find any songs in playlist")
         except Exception as e:
             print(f"Error preparing playlist: {e}")
 
@@ -265,18 +267,20 @@ class song_player:
                 await channel.send("No song is currently paused.")
 
     # wyświetla od 10 do 40 utworów w kolejce i pokazuje też ich liczbe in total
-    # odwołanie do format_duration()
+    # odwołanie do format_duration() #dodać ograniczenie spowrotem
     async def display_queue(self, x, channel):
         if x <= 0:
             x = 10
-        if x > 40:
-            x = 40
+        if x > 30:
+            x = 30
         guild_id = channel.guild.id
         if (guild_id in self.music_dequeue and self.music_dequeue[guild_id]) or guild_id in self.current_song_info:
             queue_list = list(self.music_dequeue[guild_id])
             message = "Current queue:\n```"
             message += f"Now: {self.current_song_info[guild_id][0]} - {self.format_duration(self.current_song_info[guild_id][1])}\n"
             for i, (song_url, title, duration) in enumerate(queue_list):
+                if i == x:  # niestety, jedyny sposób jaki znalazłem na nadanie limitu
+                    break
                 message += f"{i+1}. {title} - {self.format_duration(duration)}\n"
             message += "```"
             await channel.send(message)
