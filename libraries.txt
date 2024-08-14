@@ -3,3 +3,4 @@ discord
 yt_dlp
 dotenv
 aiohttp
+PyNaCl
