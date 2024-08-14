@@ -1,6 +1,6 @@
 asyncio
 discord
 yt_dlp
-dotenv
+python-dotenv
 aiohttp
 PyNaCl
