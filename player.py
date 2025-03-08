@@ -5,9 +5,11 @@ import discord
 import random
 
 # Tak naprawde nie wiem czy wszystkie opcje działają, ale wiem że z nimi jest szybko i dobrze więc ich używam, chociaż będe dalej szukał, bo playlisty się ładują całkiem wolno, ale nw czy się da szybciej
-yt_dl_options_playlist = {"format": "bestaudio/best", "ignoreerrors": True, "playlistend": 150, "quiet": True}
-yt_dl_options_single = {"format": "bestaudio[ext=m4a]", "noplaylist": True, "ignoreerrors": True, "playlistend": 1, "quiet": True}
-yt_dl_options_search = {"playlistend": 5, "flatplaylist": True, "quiet": True, "ignoreerrors": True, "skipdownload": True, "extract_flat": "in_playlist", "no_warnings": True, "nocheckcertificate": True}
+yt_dl_options_playlist = {"format": "bestaudio/best", "ignoreerrors": True, "no_abort_on_error": True, "playlistend": 150, "quiet": True}
+yt_dl_options_single = {"noplaylist": True, "ignoreerrors": True, "playlistend": 1, "quiet": True}
+yt_dl_options_search = {"playlistend": 5, "flatplaylist": True, "quiet": True, 
+                        "ignoreerrors": True, "skipdownload": True, "extract_flat": "in_playlist", "no_warnings": True, "nocheckcertificate": True}
+yt_dl_extractor_args = {'youtube': {'skip': ['dash', 'hls']}}
 
 
 class song_player:
@@ -27,9 +29,9 @@ class song_player:
     # inicjalizacja instancji ytdl dla nowych gilidi
     def initialize_ytdl(self, guild_id):
         self.ytdl_instances[guild_id] = {
-            'single': yt_dlp.YoutubeDL(yt_dl_options_single),
-            'playlist': yt_dlp.YoutubeDL(yt_dl_options_playlist),
-            'search': yt_dlp.YoutubeDL(yt_dl_options_search)
+            'single': yt_dlp.YoutubeDL({**yt_dl_options_single, **yt_dl_extractor_args}),
+            'playlist': yt_dlp.YoutubeDL({**yt_dl_options_playlist, **yt_dl_extractor_args}),
+            'search': yt_dlp.YoutubeDL({**yt_dl_options_search, **yt_dl_extractor_args})
         }
 
     # rozpoczęcie playera i utworzenie tasku
@@ -163,8 +165,6 @@ class song_player:
                                 if guild_id not in self.music_dequeue:
                                     self.music_dequeue[guild_id] = deque()
                                 self.music_dequeue[guild_id].append((song_url, title, duration))
-                                #print(f"Added song to queue: {title} - {self.format_duration(duration)}")
-                                #await channel.send(f"Added song to queue: {title} - {self.format_duration(duration)}")
                                 first_entry = False
                             else:
                                 print(f"Song already in queue: {title}")
@@ -239,13 +239,14 @@ class song_player:
             if self.music_dequeue.get(guild_id) and guild_id in self.voice_clients:
                 song_url, title, duration = self.music_dequeue[guild_id].popleft()
                 try:
-                    player = discord.FFmpegOpusAudio(song_url, **self.ffmpeg_options)
+                    music_player = discord.FFmpegOpusAudio(song_url, **self.ffmpeg_options)
                     self.current_voice_client[guild_id] = self.voice_clients[guild_id]
-                    self.current_voice_client[guild_id].play(player)
+                    self.current_voice_client[guild_id].play(music_player)
                     print("Now playing: " + title)
                     self.current_song_info[guild_id] = (title, duration)
                     while self.current_voice_client[guild_id].is_playing() or self.current_voice_client[guild_id].is_paused():
                         await asyncio.sleep(1)
+                    del music_player #delets player, meybe will fix a memory leak
                 except Exception as e:
                     print(f"Error playing song: {e}")
             else:

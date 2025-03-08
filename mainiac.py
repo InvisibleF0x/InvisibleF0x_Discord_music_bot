@@ -111,7 +111,7 @@ def run_bot():
                 voice_clients[voice_client.guild.id] = voice_client  # dodanie instancji bota do listy
                 checker = PeriodicChecker(voice_clients)
                 await checker.start(player)
-                checkers = [voice_client.guild.id] = checker
+                checkers[voice_client.guild.id] = checker
 
             except Exception as e:
                 print(e)
@@ -132,8 +132,7 @@ def run_bot():
 
         # dodaje do 150 utworów z playlisty. 
         # Odwołanie do song_player.add_playlist_to_queue() <-- ZMIEŃIĆ NAZWE, song_player.start() i checker.start() 
-        # seamles loading bo #playlist wywołuje też play XDDD, ale to git
-        #! odtwarzanie z linku do playlisty a nie 1 utworu psuje niewidoczne ładowanie
+        # seamles loading bo #playlist wywołuje też play
         if message.content.startswith("#playlist"):
             try:
                 if message.author.voice is None:
@@ -144,7 +143,7 @@ def run_bot():
                 voice_clients[voice_client.guild.id] = voice_client  # dodanie instancji bota do listy
                 checker = PeriodicChecker(voice_clients)
                 await checker.start(player)
-                checkers = [voice_client.guild.id] = checker
+                checkers[voice_client.guild.id] = checker
 
             except Exception as e:
                 print(e)
