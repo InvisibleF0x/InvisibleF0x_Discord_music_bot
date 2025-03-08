@@ -1,6 +1,6 @@
 # Uruchamianie
-Aby zadziałał należy utworzyć .env ze zmienną discord_token, pobrać biblioteki (są w libraries.txt) i
-ffmpeg z dodaniem go jako ścieżkę/zmienną systemową.
+Aby zadziałał należy utworzyć .env ze zmienną discord_token i pobrać biblioteki.
+Można je pobrać za pomocą pip install -r .\libraries.txt
 Następnie uruchomić main.py i tyle.
 
 potem dodam plik pobierający biblioteki i ffmpg.

@@ -6,7 +6,7 @@ import random
 
 # Tak naprawde nie wiem czy wszystkie opcje działają, ale wiem że z nimi jest szybko i dobrze więc ich używam, chociaż będe dalej szukał, bo playlisty się ładują całkiem wolno, ale nw czy się da szybciej
 yt_dl_options_playlist = {"format": "bestaudio/best", "ignoreerrors": True, "playlistend": 150, "quiet": True}
-yt_dl_options_single = {"format": "bestaudio/best", "noplaylist": True, "ignoreerrors": True, "playlistend": 1, "quiet": True}
+yt_dl_options_single = {"format": "bestaudio[ext=m4a]", "noplaylist": True, "ignoreerrors": True, "playlistend": 1, "quiet": True}
 yt_dl_options_search = {"playlistend": 5, "flatplaylist": True, "quiet": True, "ignoreerrors": True, "skipdownload": True, "extract_flat": "in_playlist", "no_warnings": True, "nocheckcertificate": True}
 
 
@@ -144,7 +144,7 @@ class song_player:
     # przygotowywuje playliste, pierwsza piosenka jako pierwsza,
     # najpierw ytdl pobiera wszystko, i potem dopiero jest dodawane
     # odwołanie do format_duration()
-    async def prepare_playlist(self, channel, guild_id, url):
+    async def prepare_playlist(self, channel, guild_id, url):   # todo: pliki zablokowane przez copyright spowalniają dodawanie i processing
         try:
             await channel.send("Processing the playlist...")
             loop = asyncio.get_event_loop()
@@ -299,7 +299,7 @@ class song_player:
     # użtwa random.shuffle gdy jest więcej niż 1 piosenka żeby zshuflować deque
     async def shuffle_queue(self, channel):
         guild_id = channel.guild.id
-        if guild_id in self.music_dequeue and self.music_dequeue[guild_id]:
+        if guild_id in self.music_dequeue and self.music_dequeue[guild_id][0]:
             random.shuffle(self.music_dequeue[guild_id])
             await channel.send("Shuffled the queue.")
         else:

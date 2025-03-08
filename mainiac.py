@@ -47,7 +47,9 @@ def run_bot():
     voice_clients = {}
     checkers = {}
     # te opcje zapewniają że nie powinien przestawać odtwarzać losowo i w teori głośność każdego video będzie podobna
-    ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn -af dynaudnorm'}   
+    ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                      'options': '-vn -af dynaudnorm',
+                      'executable': './ffmpeg/ffmpeg.exe'}
     player = song_player(voice_clients, ffmpeg_options)
     yt_dl_options = {"format": "bestaudio/best"}
     ytdl = yt_dlp.YoutubeDL(yt_dl_options)
@@ -264,6 +266,7 @@ Ich: bin; du: bist; er, sie: es;
 #resume -   resumes
 #skip -     skips, can take arguments: all, and number of songs to skip
 #stop -     stops music and leaves the channel (for now leaves the queue full)
+#shuffle -  shuffles the playlist
 #queue -    displays the current queue with ability to select how many, 10 is defoult, 30 is max
 #x -        if x is a number, will select the song form search
 

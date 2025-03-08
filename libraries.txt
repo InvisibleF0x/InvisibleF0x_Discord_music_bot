@@ -4,3 +4,4 @@ yt_dlp
 python-dotenv
 aiohttp
 PyNaCl
+tabulate
