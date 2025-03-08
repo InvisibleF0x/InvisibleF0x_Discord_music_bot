@@ -1,5 +1,5 @@
 import aiohttp
-import discord
+from tabulate import tabulate
 
 class warframe_api:
     def __init__(self):
@@ -56,6 +56,7 @@ class warframe_api:
             async with session.get(f"https://api.warframestat.us/{platform}/voidTrader") as response:
                 if response.status != 200:
                     #print("failed to get api")
+                    print(response)
                     await channel.send("Error getting response from Warframe API")
                     return
 
@@ -71,14 +72,23 @@ class warframe_api:
         else:
             gone = response.get("endString")
             location = response.get("location")
-            #print(f"Void treader is active on {location}, for {gone}.")
-            #print("His inventory:")
             text = text + f"Void treader for platform {platform} is active on `{location}`, for `{gone}`." + "\n" + "His inventory:```"
-            for x, i in enumerate(response.get("inventory")):
-                item = x.get("item")
-                credit = x.get("credits")
-                ducats = x.get("ducats")
-                #print(f"{i}. {item}: {credit} credits, {ducats} ducats")
-                text = text + f"{i}. {item}: {credit} credits, {ducats} ducats" + "\n"
-            text = text + "'''"
-            await channel.send(text)
+            headers = ["Li.", "Item Name", "Credits", "Ducats"]
+            item_list = [[]]
+            for i, x in enumerate(response.get("inventory")):
+                item_list.append([str(i), x.get("item"), x.get("credits"), x.get("ducats")])
+            tabulated_text = tabulate(item_list, headers=headers, tablefmt="plain")
+            text = text + tabulated_text
+            
+            if len(text) < 2000:
+                await channel.send(text + "```")
+            else:
+                split_text = text.splitlines()
+                lines_to_send = ""
+                for x in split_text:
+                    lines_to_send = lines_to_send + x + "\n"
+                    if len(lines_to_send) > 1000:
+                        await channel.send(lines_to_send + "```")
+                        lines_to_send = "```"
+                if len(lines_to_send) != 0 and lines_to_send != " " and lines_to_send != "```":
+                    await channel.send(lines_to_send + "```")
