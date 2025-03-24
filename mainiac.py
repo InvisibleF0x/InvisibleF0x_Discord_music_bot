@@ -37,8 +37,15 @@ def get_first_playlist_item_url(playlist_url):
 
 def run_bot():
     # setup klienta discord
-    load_dotenv()
-    TOKEN = os.getenv('discord_token')
+    try:
+        load_dotenv()
+        TOKEN = os.getenv('discord_token')
+        if TOKEN == None:
+            print("Didn't find .env containing discord token, make sure it exist in the same directory as main.py")
+            return
+    except:
+        print("Didn't find .env containing discord token, make sure it exist in the same directory as main.py")
+        return
     intents = discord.Intents.default()
     intents.message_content = True
     client = discord.Client(intents=intents)
